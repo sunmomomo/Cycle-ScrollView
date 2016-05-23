@@ -1,6 +1,5 @@
 //
 //  MOCycleView.h
-//  MOApp
 //
 //  Created by 馍馍帝 on 15/3/23.
 //  Copyright (c) 2015年 馍馍帝. All rights reserved.
