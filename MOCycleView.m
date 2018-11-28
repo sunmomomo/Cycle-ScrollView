@@ -7,6 +7,8 @@
 
 #import "MOCycleView.h"
 
+#define ScrollTimeGap 4.0
+
 @interface MOCycleView ()
 
 @property(nonatomic,assign)NSInteger totalPage;
@@ -14,7 +16,6 @@
 @property(nonatomic,strong)NSMutableArray *curViews;
 @property(nonatomic,assign)NSInteger currentPage;
 @property(nonatomic,strong)MOCustomPageContol *pageControl;
-@property(nonatomic,strong)NSTimer *timer;
 
 @end
 
@@ -58,7 +59,13 @@
 
 -(void)autoScroll
 {
-    [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width*2, 0) animated:YES];
+    
+    if (self.totalPage>1) {
+        
+        [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width*2, 0) animated:YES];
+        
+    }
+    
 }
 
 -(void)setDatasource:(id<MOCycleViewDatasource>)datasource
@@ -85,7 +92,7 @@
             [self.timer invalidate];
             self.timer = nil;
         }
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(autoScroll) userInfo:nil repeats:YES];
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:ScrollTimeGap target:self selector:@selector(autoScroll) userInfo:nil repeats:YES];
     }
     
     if ([self.datasource respondsToSelector:@selector(setPageControlWithView:)]) {
@@ -95,6 +102,11 @@
         self.pageControl.pageIndicatorTintColor = [self.datasource setPageControlBackColorWithView:self];
         self.pageControl.layer.cornerRadius = 6;
         self.pageControl.backgroundColor = RGBACOLOR(0, 0, 0, 0.5);
+        if ([self.datasource respondsToSelector:@selector(setPageControlBackGroundColorWithView:)]) {
+            
+            self.pageControl.backgroundColor = [self.datasource setPageControlBackGroundColorWithView:self];
+        }
+        
     }
     
     if (self.totalPage == 0) {
@@ -112,9 +124,13 @@
         [subViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     }
     [self showImagesWithCurpage:self.currentPage];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < self.curViews.count; i++) {
         UIView *tempView = [self.curViews objectAtIndex:i];
-        tempView.frame = CGRectOffset(tempView.frame, tempView.frame.size.width * i, 0);
+        // 保证 tempView 在 最中间
+        CGFloat xx = self.frame.size.width * i + (self.frame.size.width - tempView.frame.size.width)/2.0;
+        CGFloat yy = (self.frame.size.height - tempView.frame.size.height)/2.0;
+        
+        tempView.frame = CGRectMake(xx, yy, tempView.width, tempView.height);
         [self.scrollView addSubview:tempView];
     }
     [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width, 0)];
@@ -129,9 +145,14 @@
             self.curViews = [[NSMutableArray alloc] init];
         }
         [self.curViews removeAllObjects];
-        [self.curViews addObject:[self.datasource pageAtCView:self AtIndex:pre]];
-        [self.curViews addObject:[self.datasource pageAtCView:self AtIndex:page]];
-        [self.curViews addObject:[self.datasource pageAtCView:self AtIndex:next]];
+        
+        if (self.datasource) {
+            
+            [self.curViews addObjectYF:[self.datasource pageAtCView:self AtIndex:pre]];
+            [self.curViews addObjectYF:[self.datasource pageAtCView:self AtIndex:page]];
+            [self.curViews addObjectYF:[self.datasource pageAtCView:self AtIndex:next]];
+        }
+        
     }
 }
 

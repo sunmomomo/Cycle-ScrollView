@@ -11,10 +11,15 @@
 @protocol MOCycleViewDatasource;
 
 @interface MOCycleView : UIView<UIScrollViewDelegate>
+
+@property(nonatomic,strong)NSTimer *timer;
 @property(nonatomic,assign)BOOL shouldAutoScroll;
 @property(nonatomic,strong)UIImageView *placeHolderImg;
-@property(nonatomic,assign)id<MOCycleViewDelegate> delegate;
-@property(nonatomic,assign,setter=setDatasource:)id<MOCycleViewDatasource> datasource;
+@property(nonatomic,weak)id<MOCycleViewDelegate> delegate;
+@property(nonatomic,weak,setter=setDatasource:)id<MOCycleViewDatasource> datasource;
+
+-(void)reload;
+
 @end
 
 @protocol MOCycleViewDelegate <NSObject>
@@ -31,6 +36,7 @@
 -(UIColor *)setPageControlBackColorWithView:(MOCycleView*)cView;
 -(UIColor *)setPageControlColorWithView:(MOCycleView*)cView;
 -(CGRect)setPageControlWithView:(MOCycleView*)cView;
+-(UIColor *)setPageControlBackGroundColorWithView:(MOCycleView*)cView;
 -(CGFloat)setPageControlSize:(MOCycleView*)cView;
 @required
 -(NSInteger)numberOfPageWithView:(MOCycleView*)cView;
